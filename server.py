@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ⚠️ MONGODB LİNKİNİ BURAYA YAPIŞTIR
-MONGODB_URL =  "mongodb+srv://<expresamericano084_db_user>:<wux07S6yL2zC8QSb>@cluster0.963nuit.mongodb.net/"
+MONGODB_URL =  "mongodb+srv://expresamericano084_db_user:wux07S6yL2zC8QSb@cluster0.963nuit.mongodb.net/"
 client = pymongo.MongoClient(MONGODB_URL, tlsCAFile=certifi.where())
 db = client["kafe_db"]
 menu_koleksiyonu = db["menu"]
