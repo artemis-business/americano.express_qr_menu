@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- TARAYICI İNADI KIRICI KODLAR (Önbelleği zorla temizler) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>Americano Express | QR Menü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            /* SİYAH TEMA: Ana arka plan çok koyu antrasit/siyah */
+            background-color: #0a0a0a; 
+            color: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* ÜST BAR TASARIMI (Loş Siyah ve Altın Arka Plan) */
+        .top-bar {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 20px;
+            border-bottom: 3px solid #D4AF37; /* Altın sarısı ayırıcı çizgi */
+            
+            /* Eğer klasöre 'americano-bg.jpg' atarsanız onu gösterir, atmazsanız lüks siyah/altın gradient görünür */
+            background-color: #050505;
+            background-image: radial-gradient(circle at center, rgba(30, 25, 15, 0.8) 0%, rgba(5, 5, 5, 0.95) 100%), url('americano-bg.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+            .top-bar::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                /* Ekstra loşluk katan karanlık filtre */
+                background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+                z-index: 1;
+            }
+
+        .brand-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            /* LÜKS DOKUNUŞ: Logoyu öne çıkaran altın sarısı (gold) ışıklı gölge */
+            box-shadow: 0 0 30px 5px rgba(212, 175, 55, 0.3), 0 5px 15px rgba(0,0,0,0.9);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            border: 2px solid #D4AF37; /* İnce altın çerçeve */
+            background-color: #000;
+        }
+
+        .brand-title {
+            color: #D4AF37; /* Yazı rengi altın sarısı */
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+            /* Loş siyah şeffaf kapsül */
+            background-color: rgba(15, 15, 15, 0.85);
+            padding: 8px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            border: 1px solid rgba(212, 175, 55, 0.5); /* Hafif altın kenarlık */
+        }
+
+        /* KATEGORİ IZGARASI */
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 15px;
+            padding-bottom: 100px;
+        }
+
+        /* KATEGORİLERE 3D DOKUNMA EFEKTİ (Koyu Tema) */
+        .cat-box {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-color: #151515; /* Yüklenene kadar koyu gri */
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.15); /* Çok hafif altın detayı */
+        }
+            /* Basılma anındaki küçülme */
+            .cat-box:active {
+                transform: scale(0.95); 
+                box-shadow: inset 0 4px 15px rgba(0,0,0,0.8);
+            }
+
+        .cat-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            /* Koyu temada metin okunsun diye yoğun siyah geçiş */
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+            pointer-events: none;
+        }
+
+        .cat-title {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            color: #D4AF37; /* Altın sarısı kategori isimleri */
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 2;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+
+        /* FAB BUTON VE İLETİŞİM MENÜSÜ */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .fab-menu {
+            background: #111111; /* Koyu açılır menü */
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            padding: 10px 0;
+            margin-bottom: 15px;
+            display: none;
+            flex-direction: column;
+            min-width: 210px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+            .fab-menu.active {
+                display: flex;
+            }
+
+        .fab-menu-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #e0e0e0; /* Açık gri metin */
+            text-align: left;
+            border-bottom: 1px solid #222;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .fab-menu-item:last-child {
+                border-bottom: none;
+            }
+
+            .fab-menu-item:hover {
+                background-color: #1a1a1a;
+                color: #D4AF37; /* Hover'da altın sarısı parlar */
+            }
+
+        .fab-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background-color: #0a0a0a; /* Siyah zemin */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px 5px rgba(212, 175, 55, 0.25), 0 4px 10px rgba(0, 0, 0, 0.8);
+            border: 2px solid #D4AF37; /* Altın sarısı buton çevresi */
+            transition: all 0.3s ease;
+        }
+
+            .fab-btn:hover, .fab-btn:active {
+                box-shadow: 0 0 20px 8px rgba(212, 175, 55, 0.4), 0 6px 12px rgba(0, 0, 0, 0.9);
+                transform: scale(1.05);
+            }
+
+            .fab-btn div {
+                width: 22px;
+                height: 3px;
+                background: #D4AF37; /* İçindeki menü çizgileri gold */
+                margin: 4px 0;
+                border-radius: 2px;
+            }
+
+        /* MODAL TASARIMI (Ürünler Açıldığında Koyu Tema) */
+        #category-modal {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0a; /* Siyah arka plan */
+            z-index: 10000;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow-y: auto;
+        }
+
+            #category-modal.active {
+                transform: translateY(0);
+            }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #111;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #modal-title {
+            margin: 0; 
+            font-size: 19px; 
+            color: #D4AF37; /* Altın sarısı başlık */
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .back-btn {
+            background-color: transparent;
+            color: #D4AF37;
+            border: 1px solid #D4AF37;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .back-btn:hover, .back-btn:active {
+                background-color: #D4AF37;
+                color: #000;
+                transform: scale(0.95);
+            }
+
+        /* ÜRÜN LİSTESİ (Koyu Mod) */
+        .product-item {
+            display: flex;
+            gap: 15px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            transition: background-color 0.2s;
+        }
+
+            .product-item:active {
+                background-color: #151515;
+            }
+
+        .p-img {
+            width: 95px;
+            height: 95px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: zoom-in;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border: 1px solid #222;
+        }
+
+        .p-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .p-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0 0 6px 0;
+            color: #fff; /* Ürün ismi beyaz */
+        }
+
+        .p-desc {
+            font-size: 13px;
+            color: #999; /* Açıklama gri */
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        .p-price {
+            font-weight: 900;
+            color: #D4AF37; /* Fiyatlar lüks gold rengi */
+            font-size: 17px;
+            margin: 0;
+            margin-top: auto;
+        }
+
+        /* ŞIK YÜKLEME SPİNNER'I (Gold Konsept) */
+        #loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 20px;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(212, 175, 55, 0.1);
+            border-top: 4px solid #D4AF37; /* Dönen kısım altın */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-weight: 700;
+            color: #D4AF37;
+            font-size: 15px;
+            letter-spacing: 1.5px;
+        }
+
+        /* TAM EKRAN GÖRSEL (LIGHTBOX) */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 100000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+            #lightbox.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            #lightbox img {
+                max-width: 90%;
+                max-height: 80%;
+                border-radius: 12px;
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+                border: 1px solid #D4AF37; /* Büyüyen fotoğrafa lüks çerçeve */
+            }
+
+            #lightbox.active img {
+                transform: scale(1);
+            }
+
+        .lightbox-close {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: #D4AF37;
+            font-size: 40px;
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <img src="Logo.jfif" alt="Americano Express Logo" class="brand-logo">
+        <div class="brand-title">Americano Express</div>
+    </div>
+
+    <!-- ÖZELLİK 1: YENİ YÜKLEME EKRANI -->
+    <div id="loading-container">
+        <div class="spinner"></div>
+        <div class="loading-text">Menü Hazırlanıyor...</div>
+    </div>
+
+    <div class="category-grid" id="category-grid"></div>
+
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <div class="fab-menu-item" style="font-weight: bold; color: #D4AF37; pointer-events: none; border-bottom: 1px solid #333;">Americano Express İletişim</div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Americano+Express+Erzurum" target="_blank" class="fab-menu-item">
+                📍 Haritada Göster (Yol Tarifi)
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" class="fab-menu-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Instagram'da Biz
+            </a>
+        </div>
+        <div class="fab-btn" onclick="toggleFab()">
+            <div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="category-modal">
+        <div class="modal-header">
+            <h2 id="modal-title">Kategori</h2>
+            <button class="back-btn" onclick="closeModal()">Kapat</button>
+        </div>
+        <div id="modal-content"></div>
+    </div>
+
+    <!-- ÖZELLİK 4: LIGHTBOX GİZLİ KONTEYNER (Tam Ekran Görsel) -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-close">×</div>
+        <img id="lightbox-img" src="" alt="Büyük Görsel">
+    </div>
+
+    <script>
+                window.kategorilenmisUrunler = {};
+
+                async function menuyuGetir() {
+                    try {
+                        const zamanDamgasi = new Date().getTime();
+                        /* DİKKAT: Americano Express veritabanı bağlantısı için API rotasını değiştirmeyi unutmayın */
+                        const response = await fetch('/api/menu?t=' + zamanDamgasi, { cache: "no-store" });
+                        const veri = await response.json();
+
+                        if (veri.status === "success") {
+                            document.getElementById('loading-container').style.display = 'none';
+                            const grid = document.getElementById('category-grid');
+                            grid.innerHTML = "";
+                            window.kategorilenmisUrunler = {};
+
+                            veri.kategoriler.forEach(kat => {
+                                window.kategorilenmisUrunler[kat.isim] = [];
+                                let imgUrl = kat.foto_base64 || '';
+
+                                grid.innerHTML += `
+                                    <div class="cat-box" style="background-image: url('${imgUrl}');" onclick="openModal('${kat.isim}')">
+                                        <div class="cat-gradient"></div>
+                                        <div class="cat-title">${kat.isim}</div>
+                                    </div>
+                                `;
+                            });
+
+                            if (!window.kategorilenmisUrunler["Diğer"]) {
+                                window.kategorilenmisUrunler["Diğer"] = [];
+                            }
+
+                            veri.urunler.forEach(urun => {
+                                if (window.kategorilenmisUrunler[urun.kategori]) {
+                                    window.kategorilenmisUrunler[urun.kategori].push(urun);
+                                } else {
+                                    window.kategorilenmisUrunler["Diğer"].push(urun);
+                                }
+                            });
+
+                            if (window.kategorilenmisUrunler["Diğer"].length > 0) {
+                                grid.innerHTML += `
+                                    <div class="cat-box" style="background-color: #111;" onclick="openModal('Diğer')">
+                                        <div class="cat-gradient"></div>
+                                        <div class="cat-title">DİĞER ÜRÜNLER</div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } catch (error) {
+                        document.getElementById('loading-container').innerHTML = "<div style='padding:30px; text-align:center; color:#D4AF37;'>Bağlantı hatası! Lütfen sayfayı yenileyin.</div>";
+                    }
+                }
+
+                // Kategori modalı açıldığında içini doldurur
+                function openModal(kategoriAdi) {
+                    document.getElementById('modal-title').innerText = kategoriAdi;
+                    const content = document.getElementById('modal-content');
+                    content.innerHTML = "";
+
+                    const urunler = window.kategorilenmisUrunler[kategoriAdi] || [];
+
+                    urunler.forEach(urun => {
+                        content.innerHTML += urunHTMLOlustur(urun);
+                    });
+
+                    document.getElementById('category-modal').classList.add('active');
+                }
+
+                // Ürün HTML yapısını çizen yardımcı fonksiyon
+                function urunHTMLOlustur(urun) {
+                    return `
+                        <div class="product-item">
+                            <img src="${urun.foto_base64}" class="p-img" onclick="openLightbox('${urun.foto_base64}')" title="Büyütmek için dokunun">
+                            <div class="p-info">
+                                <h3 class="p-name">${urun.isim}</h3>
+                                <p class="p-desc">${urun.aciklama || ''}</p>
+                                <p class="p-price">${urun.fiyat} ₺</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // TAM EKRAN GÖRSEL (LIGHTBOX) FONKSİYONLARI
+                function openLightbox(imgSrc) {
+                    if(!imgSrc || imgSrc.includes('placeholder')) return; 
+                    const lightbox = document.getElementById('lightbox');
+                    const lightboxImg = document.getElementById('lightbox-img');
+                    lightboxImg.src = imgSrc;
+                    lightbox.classList.add('active');
+                }
+
+                function closeLightbox() {
+                    document.getElementById('lightbox').classList.remove('active');
+                }
+
+                function closeModal() {
+                    document.getElementById('category-modal').classList.remove('active');
+                }
+
+                function toggleFab() {
+                    document.getElementById('fab-menu').classList.toggle('active');
+                }
+
+                menuyuGetir();
+    </script>
+</body>
+</html>
