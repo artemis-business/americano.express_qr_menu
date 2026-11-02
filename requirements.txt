@@ -1,0 +1,10 @@
+streamlit
+firebase-admin
+pywebview
+pyinstaller
+Flask
+flask-cors
+pymongo
+dnspython
+gunicorn
+certifi
